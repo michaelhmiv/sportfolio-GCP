@@ -16,10 +16,17 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
 
   const connect = () => {
-    // Use the same host and port as the current page (backend serves WS on same port)
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    if (!backendUrl) {
+      console.error("VITE_BACKEND_URL is not defined");
+      return;
+    }
+
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.host; // includes port in development
-    const ws = new WebSocket(`${protocol}//${host}/ws`);
+    // Construct the WebSocket URL from the backend URL, stripping http/https and appending the correct ws/wss protocol
+    const wsUrl = `${protocol}//${backendUrl.replace(/^https?:\/\//, '')}/ws`;
+
+    const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
       console.log('[WebSocket] Connected to live updates');

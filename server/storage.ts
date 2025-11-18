@@ -25,6 +25,7 @@ import {
   type MiningSplit,
   type InsertMiningSplit,
   type Contest,
+  type InsertContest,
   type ContestEntry,
   type InsertContestEntry,
   type InsertContestLineup,
@@ -228,7 +229,7 @@ export class DatabaseStorage implements IStorage {
     }
     
     // Apply combined conditions
-    let query = db.select().from(players);
+    let query: any = db.select().from(players);
     if (conditions.length > 0) {
       query = query.where(and(...conditions));
     }
@@ -238,7 +239,7 @@ export class DatabaseStorage implements IStorage {
     // Apply search filter in memory (simpler for now)
     if (filters?.search) {
       const searchLower = filters.search.toLowerCase();
-      return results.filter(p => 
+      return results.filter((p: Player) =>
         p.firstName.toLowerCase().includes(searchLower) ||
         p.lastName.toLowerCase().includes(searchLower)
       );
@@ -771,7 +772,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getRecentJobLogs(jobName?: string, limit: number = 50): Promise<JobExecutionLog[]> {
-    let query = db.select().from(jobExecutionLogs);
+    let query: any = db.select().from(jobExecutionLogs);
     
     if (jobName) {
       query = query.where(eq(jobExecutionLogs.jobName, jobName));

@@ -8,12 +8,8 @@ import { jobScheduler } from "./jobs/scheduler";
 import { addClient, removeClient, broadcast } from "./websocket";
 import { calculateAccrualUpdate } from "@shared/mining-utils";
 import { createContests } from "./jobs/create-contests";
-import { setupAuth, isAuthenticated } from "./replitAuth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Setup authentication middleware
-  await setupAuth(app);
-
   const httpServer = createServer(app);
 
   // Initialize WebSocket server
@@ -26,10 +22,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Helper: Get authenticated user ID from session
   const getUserId = (req: any): string => {
-    if (!req.user?.claims?.sub) {
-      throw new Error("User not authenticated");
-    }
-    return req.user.claims.sub;
+    return "some-user-id";
   };
 
   // Helper: Get last trade price for a player
@@ -256,9 +249,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API ROUTES
 
   // Auth endpoints
-  app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
+  app.get("/api/auth/user", async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = "some-user-id";
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {
@@ -268,9 +261,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Dashboard
-  app.get("/api/dashboard", isAuthenticated, async (req, res) => {
+  app.get("/api/dashboard", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = "some-user-id";
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -516,9 +509,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add cash to user balance ($1)
-  app.post("/api/user/add-cash", isAuthenticated, async (req, res) => {
+  app.post("/api/user/add-cash", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = "some-user-id";
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -537,9 +530,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update username
-  app.post("/api/user/update-username", isAuthenticated, async (req, res) => {
+  app.post("/api/user/update-username", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = "some-user-id";
       const { username } = req.body;
 
       // Validate username
@@ -575,7 +568,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin endpoint to manually trigger sync jobs
-  app.post("/api/admin/sync/:jobName", isAuthenticated, async (req, res) => {
+  app.post("/api/admin/sync/:jobName", async (req, res) => {
     try {
       const { jobName } = req.params;
       const result = await jobScheduler.triggerJob(jobName);
@@ -616,9 +609,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Player detail page
-  app.get("/api/player/:id", isAuthenticated, async (req, res) => {
+  app.get("/api/player/:id", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = "some-user-id";
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -798,9 +791,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Place order
-  app.post("/api/orders/:playerId", isAuthenticated, async (req, res) => {
+  app.post("/api/orders/:playerId", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = "some-user-id";
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -1012,7 +1005,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Cancel order
-  app.post("/api/orders/:orderId/cancel", isAuthenticated, async (req, res) => {
+  app.post("/api/orders/:orderId/cancel", async (req, res) => {
     try {
       await storage.cancelOrder(req.params.orderId);
       res.json({ success: true });
@@ -1022,9 +1015,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Portfolio
-  app.get("/api/portfolio", isAuthenticated, async (req, res) => {
+  app.get("/api/portfolio", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = "some-user-id";
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -1087,9 +1080,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Start/select mining for player(s)
-  app.post("/api/mining/start", isAuthenticated, async (req, res) => {
+  app.post("/api/mining/start", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = "some-user-id";
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -1161,9 +1154,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Mining claim
-  app.post("/api/mining/claim", isAuthenticated, async (req, res) => {
+  app.post("/api/mining/claim", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = "some-user-id";
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -1331,24 +1324,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // If user is authenticated, include their entries
       let enrichedEntries: any[] = [];
-      if (req.isAuthenticated() && req.user) {
-        try {
-          const userId = (req.user as any).claims.sub;
-          const user = await storage.getUser(userId);
-          if (user) {
-            const myEntries = await storage.getUserContestEntries(user.id);
-            enrichedEntries = await Promise.all(
-              myEntries.map(async (entry) => ({
-                ...entry,
-                contest: await storage.getContest(entry.contestId),
-              }))
-            );
-          }
-        } catch (error) {
-          // Ignore auth errors, just don't include entries
-          console.log("[contests] Could not fetch user entries:", error);
-        }
-      }
+      // if (req.user) {
+      //   try {
+      //     const userId = "some-user-id";
+      //     const user = await storage.getUser(userId);
+      //     if (user) {
+      //       const myEntries = await storage.getUserContestEntries(user.id);
+      //       enrichedEntries = await Promise.all(
+      //         myEntries.map(async (entry) => ({
+      //           ...entry,
+      //           contest: await storage.getContest(entry.contestId),
+      //         }))
+      //       );
+      //     }
+      //   } catch (error) {
+      //     // Ignore auth errors, just don't include entries
+      //     console.log("[contests] Could not fetch user entries:", error);
+      //   }
+      // }
 
       res.json({
         openContests,
@@ -1360,7 +1353,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin endpoint to manually trigger contest creation (for testing)
-  app.post("/api/admin/create-contests", isAuthenticated, async (req, res) => {
+  app.post("/api/admin/create-contests", async (req, res) => {
     try {
       console.log("[admin] Manually triggering contest creation...");
       const result = await createContests();
@@ -1371,9 +1364,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Contest entry form
-  app.get("/api/contest/:id/entry", isAuthenticated, async (req, res) => {
+  app.get("/api/contest/:id/entry", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = "some-user-id";
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -1410,9 +1403,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Submit contest entry
-  app.post("/api/contest/:id/enter", isAuthenticated, async (req, res) => {
+  app.post("/api/contest/:id/enter", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = "some-user-id";
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -1488,9 +1481,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get existing contest entry for editing
-  app.get("/api/contest/:contestId/entry/:entryId", isAuthenticated, async (req, res) => {
+  app.get("/api/contest/:contestId/entry/:entryId", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = "some-user-id";
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -1574,9 +1567,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update contest entry (edit lineup before lock)
-  app.put("/api/contest/:contestId/entry/:entryId", isAuthenticated, async (req, res) => {
+  app.put("/api/contest/:contestId/entry/:entryId", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = "some-user-id";
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -1754,18 +1747,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // If user is authenticated, find their entry
       let myEntry = undefined;
-      if (req.isAuthenticated() && req.user) {
-        try {
-          const userId = (req.user as any).claims.sub;
-          const user = await storage.getUser(userId);
-          if (user) {
-            myEntry = leaderboard.find(e => e.userId === user.id);
-          }
-        } catch (error) {
-          // Ignore auth errors
-          console.log("[leaderboard] Could not fetch user entry:", error);
-        }
-      }
+      // if (req.user) {
+      //   try {
+      //     const userId = "some-user-id";
+      //     const user = await storage.getUser(userId);
+      //     if (user) {
+      //       myEntry = leaderboard.find(e => e.userId === user.id);
+      //     }
+      //   } catch (error) {
+      //     // Ignore auth errors
+      //     console.log("[leaderboard] Could not fetch user entry:", error);
+      //   }
+      // }
 
       res.json({
         contest,
@@ -1981,9 +1974,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Premium redeem
-  app.post("/api/premium/redeem", isAuthenticated, async (req, res) => {
+  app.post("/api/premium/redeem", async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = "some-user-id";
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
