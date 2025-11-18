@@ -326,6 +326,11 @@ export const insertOrderSchema = createInsertSchema(orders).omit({
   limitPrice: z.string().optional(),
 });
 
+export const insertContestSchema = createInsertSchema(contests).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertContestEntrySchema = createInsertSchema(contestEntries).omit({
   id: true,
   totalScore: true,
@@ -386,6 +391,7 @@ export type PlayerGameStats = typeof playerGameStats.$inferSelect;
 export type InsertPlayerGameStats = z.infer<typeof insertPlayerGameStatsSchema>;
 
 export type Contest = typeof contests.$inferSelect;
+export type InsertContest = z.infer<typeof insertContestSchema>;
 export type ContestEntry = typeof contestEntries.$inferSelect;
 export type ContestLineup = typeof contestLineups.$inferSelect;
 

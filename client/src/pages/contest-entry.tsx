@@ -185,7 +185,7 @@ export default function ContestEntry() {
                   No eligible players found
                 </div>
               ) : (
-                filteredPlayers.map((holding) => (
+                filteredPlayers.map((holding: Holding & { player: Player; isEligible: boolean }) => (
                   <div
                     key={holding.player.id}
                     className="flex items-center justify-between p-3 border rounded-md hover-elevate"
