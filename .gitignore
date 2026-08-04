@@ -1,6 +1,42 @@
-node_modules
-dist
+node_modules/
+dist/
 .DS_Store
-server/public
+server/public/
 vite.config.ts.*
 *.tar.gz
+*.tgz
+
+# Environment and local configuration
+.env
+.env.*
+!.env.example
+*.local
+
+# Cloud and service-account credentials
+*service-account*.json
+*service_account*.json
+credentials.json
+application_default_credentials.json
+.gcloud/
+
+# Private keys, certificates, and signing material
+*.pem
+*.key
+*.p8
+*.p12
+*.pfx
+*.jks
+*.keystore
+AuthKey_*.p8
+
+# Logs, coverage, caches, and temporary files
+*.log
+coverage/
+.nyc_output/
+.cache/
+.tmp/
+tmp/
+
+# IDE and operating-system files
+.vscode/
+.idea/
