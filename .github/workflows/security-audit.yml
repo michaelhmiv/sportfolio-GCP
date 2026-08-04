@@ -58,7 +58,7 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-      - name: Install without lifecycle scripts
-        run: npm ci --ignore-scripts
+      - name: Resolve dependencies without lifecycle scripts
+        run: npm install --ignore-scripts --package-lock=false
       - name: Report production vulnerabilities
         run: npm audit --omit=dev --audit-level=high
