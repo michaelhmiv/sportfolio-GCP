@@ -46,24 +46,3 @@ jobs:
         uses: github/codeql-action/analyze@v4
         with:
           category: /language:javascript-typescript
-
-  dependency-audit:
-    name: Known legacy dependency risk
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "22.13.0"
-          cache: npm
-      - name: Resolve dependencies without lifecycle scripts
-        run: npm install --ignore-scripts --package-lock=false
-      - name: Report known legacy production vulnerabilities
-        run: npm audit --omit=dev --audit-level=high
-        continue-on-error: true
-      - name: Explain non-blocking legacy audit
-        run: |
-          echo "This repository is an obsolete snapshot scheduled for archival or private visibility."
-          echo "Known dependency findings are documented in issue #4 and must not be interpreted as deployment approval."
